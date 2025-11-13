@@ -17,4 +17,4 @@ rev = "bb700f4"
 [[require]]
 name = "plausible"
 git = "https://github.com/leanprover-community/plausible"
-rev = "v4.18.0"
+rev = "v4.25.0-rc2"
