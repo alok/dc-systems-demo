@@ -10,28 +10,28 @@ open Plausible
 
 open Lean Server ProofWidgets Widget
 
-def String.nextN (n : Nat) (s : String) (p : String.Pos) : String.Pos :=
+def String.nextN (n : Nat) (s : String) (p : String.Pos.Raw) : String.Pos.Raw :=
   match n with
   | 0 => p
-  | n' + 1 => s.nextN n' (s.next p)
+  | n' + 1 => s.nextN n' (String.Pos.Raw.next s p)
 
 structure FindPos where
-  startPos : String.Pos
-  endPos : String.Pos
+  startPos : String.Pos.Raw
+  endPos : String.Pos.Raw
   deriving Repr
 
 partial def findAllPos (needle : String) (haystack : String) : List FindPos :=
-  let rec go (curr : String.Pos) :=
-    if haystack.atEnd curr
+  let rec go (curr : String.Pos.Raw) :=
+    if String.Pos.Raw.atEnd haystack curr
       then []
       else
         let curr' := haystack.nextN needle.length curr
-        let candidate := haystack.extract curr curr'
+        let candidate := String.Pos.Raw.extract haystack curr curr'
         if candidate == needle then
           {startPos := curr, endPos := curr'} :: go curr'
         else
-          go (haystack.next curr)
-  go (String.Pos.mk 0)
+          go (String.Pos.Raw.next haystack curr)
+  go (String.Pos.Raw.mk 0)
 
 structure ChangeTVarProps where
   varName : String

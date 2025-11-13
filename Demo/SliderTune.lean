@@ -3,58 +3,58 @@ import ProofWidgets.Component.OfRpcMethod
 
 open Lean Server ProofWidgets Widget
 
-def String.nextN (n : Nat) (s : String) (p : String.Pos) : String.Pos :=
+def String.nextN (n : Nat) (s : String) (p : String.Pos.Raw) : String.Pos.Raw :=
   match n with
   | 0 => p
-  | n' + 1 => s.nextN n' (s.next p)
+  | n' + 1 => s.nextN n' (String.Pos.Raw.next s p)
 
 structure SliderPos where
-  openBracket : String.Pos
-  closeBracket : String.Pos
+  openBracket : String.Pos.Raw
+  closeBracket : String.Pos.Raw
 
 partial def findAllSliders (s : String) : List SliderPos :=
-  let rec go (curr : String.Pos) :=
-    if s.atEnd curr
+  let rec go (curr : String.Pos.Raw) :=
+    if String.Pos.Raw.atEnd s curr
       then []
       else
-        let opener := s.extract curr (s.nextN 8 curr)
+        let opener := String.Pos.Raw.extract s curr (s.nextN 8 curr)
         if opener = "[slider|" then
-          let curr' := s.next <| s.nextWhile (· != ']') curr
+          let curr' := String.Pos.Raw.next s <| String.Pos.Raw.nextWhile s (· != ']') curr
           {openBracket := curr, closeBracket := curr'} :: go curr'
         else
-          go (s.nextWhile (· != '[') curr)
-  go (s.nextWhile (· != '[') (String.Pos.mk 0))
+          go (String.Pos.Raw.nextWhile s (· != '[') curr)
+  go (String.Pos.Raw.nextWhile s (· != '[') (String.Pos.Raw.mk 0))
 
 partial def findSlider (s : String) (name : String) : Option SliderPos :=
-  let rec go (curr : String.Pos) :=
-    if s.atEnd curr
+  let rec go (curr : String.Pos.Raw) :=
+    if String.Pos.Raw.atEnd s curr
       then none
       else
-        let opener := s.extract curr (s.nextN (8 + name.length) curr)
+        let opener := String.Pos.Raw.extract s curr (s.nextN (8 + name.length) curr)
         if opener = "[slider|" ++ name then
-          let curr' := s.next <| s.nextWhile (· != ']') curr
+          let curr' := String.Pos.Raw.next s <| String.Pos.Raw.nextWhile s (· != ']') curr
           return {openBracket := curr, closeBracket := curr'}
         else
-          go (s.next curr)
-  go (s.nextWhile (· != '[') (String.Pos.mk 0))
+          go (String.Pos.Raw.next s curr)
+  go (String.Pos.Raw.nextWhile s (· != '[') (String.Pos.Raw.mk 0))
 
-def SliderPos.varRange (p : SliderPos) (s : String) : String.Pos × String.Pos :=
+def SliderPos.varRange (p : SliderPos) (s : String) : String.Pos.Raw × String.Pos.Raw :=
   let start := s.nextN 8 p.openBracket
-  let finish := s.nextWhile (· != '=') start
+  let finish := String.Pos.Raw.nextWhile s (· != '=') start
   ⟨start, finish⟩
 
 def SliderPos.var (p : SliderPos) (s : String) : String :=
   let ⟨start, finish⟩ := p.varRange s
-  s.extract start finish
+  String.Pos.Raw.extract s start finish
 
-def SliderPos.valueRange (p : SliderPos) (s : String) : String.Pos × String.Pos :=
-  let start := s.next <| s.nextWhile (· != '=') p.openBracket
-  let finish := s.prev p.closeBracket
+def SliderPos.valueRange (p : SliderPos) (s : String) : String.Pos.Raw × String.Pos.Raw :=
+  let start := String.Pos.Raw.next s <| String.Pos.Raw.nextWhile s (· != '=') p.openBracket
+  let finish := String.Pos.Raw.prev s p.closeBracket
   ⟨start, finish⟩
 
 def SliderPos.value (p : SliderPos) (s : String) : String :=
   let ⟨start, finish⟩ := p.valueRange s
-  s.extract start finish
+  String.Pos.Raw.extract s start finish
 
 structure GetInitialSliderProps where
   varName : String
