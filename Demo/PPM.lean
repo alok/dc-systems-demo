@@ -40,6 +40,7 @@ def init (width height : UInt64) : PPM :=
 def addPixel (image : PPM) (px : RGB) : PPM :=
   {image with pixels := image.pixels.push px}
 
+/-- `addPixel` -/
 def display (image : PPM) : String :=
   let pixels := image.pixels.foldr (λ x acc => x.display ++ "\n" ++ acc) ""
   s!"P3\n{image.width} {image.height}\n255\n{pixels}"
