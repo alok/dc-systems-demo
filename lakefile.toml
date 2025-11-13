@@ -2,9 +2,17 @@ name = "demo"
 version = "0.1.0"
 defaultTargets = ["demo"]
 
+[leanOptions]
+pp.unicode.fun = true
+autoImplicit = true
+# prevent confusing the AI with missing identifiers misidentified as implicit arguments
+relaxedAutoImplicit = false
+linter.missingDocs = true
+doc.verso = true
+
 [[lean_lib]]
 name = "Demo"
-
+glob = ["Demo.*"]
 [[lean_exe]]
 name = "demo"
 root = "Main"
@@ -12,7 +20,7 @@ root = "Main"
 [[require]]
 name = "proofwidgets"
 git = "https://github.com/leanprover-community/ProofWidgets4"
-rev = "v0.0.78"
+rev = "995d1c2"
 
 [[require]]
 name = "plausible"
